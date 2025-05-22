@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .floating-chat {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .chat-iframe {
+            transform-origin: bottom right;
+            transition: all 0.3s ease;
+        }
+
+        .chat-iframe.hidden {
+            transform: scale(0);
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+            <div class="px-6 py-4">
+                <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+                <p class="text-gray-600 mt-2">Manage your products, purchases, and customer support</p>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <!-- Products Section -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-900">Products</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        ID</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Name</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Price</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Stock</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <% if (products.length===0) { %>
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-12 text-center">
+                                            <div class="text-gray-400 mb-4">
+                                                <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                                </svg>
+                                            </div>
+                                            <h3 class="text-lg font-medium text-gray-900 mb-2">No products available
+                                            </h3>
+                                            <p class="text-gray-500">Add your first product to get started.</p>
+                                        </td>
+                                    </tr>
+                                    <% } else { %>
+                                        <% products.forEach(product=> { %>
+                                            <tr class="hover:bg-gray-50">
+                                                <td
+                                                    class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    <%= product.id %>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <%= product.name %>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <span class="font-medium">Rp <%= product.price.toLocaleString() %>
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <% if (product.quantity> 10) { %>
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            <%= product.quantity %>
+                                                        </span>
+                                                        <% } else if (product.quantity> 0) { %>
+                                                            <span
+                                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                                <%= product.quantity %>
+                                                            </span>
+                                                            <% } else { %>
+                                                                <span
+                                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                                    <%= product.quantity %>
+                                                                </span>
+                                                                <% } %>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Product Section -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Add Product Form -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-900">Add Product</h2>
+                    </div>
+                    <div class="px-6 py-6">
+                        <form action="/products" method="POST" class="space-y-4">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Product
+                                    Name</label>
+                                <input type="text" name="name" id="name" placeholder="Enter product name" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="price" class="block text-sm font-medium text-gray-700 mb-2">Price</label>
+                                <input type="number" name="price" id="price" placeholder="Enter price" required min="0"
+                                    step="1000"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">Initial
+                                    Stock</label>
+                                <input type="number" name="quantity" id="quantity" placeholder="Enter stock quantity"
+                                    required min="0"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+
+                            <button type="submit"
+                                class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                                Add Product
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Add Purchase Form -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-900">Add Purchase</h2>
+                    </div>
+                    <div class="px-6 py-6">
+                        <form action="/purchase" method="POST" class="space-y-4">
+                            <div>
+                                <label for="product_id" class="block text-sm font-medium text-gray-700 mb-2">Select
+                                    Product</label>
+                                <select name="product_id" id="product_id" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Choose a product...</option>
+                                    <% products.forEach(product=> { %>
+                                        <option value="<%= product.id %>" <%=product.quantity===0 ? 'disabled' : '' %>>
+                                            <%= product.name %> (Stock: <%= product.quantity %>)
+                                        </option>
+                                        <% }) %>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="purchase_quantity"
+                                    class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                                <input type="number" name="quantity" id="purchase_quantity" placeholder="Enter quantity"
+                                    required min="1"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+
+                            <button type="submit"
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                Add Purchase
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Chat Widget -->
+    <div class="floating-chat">
+        <!-- Chat Toggle Button -->
+        <button id="chat-toggle"
+            class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                </path>
+            </svg>
+        </button>
+
+        <!-- Chat Window with iframe -->
+        <div id="chat-window"
+            class="chat-iframe hidden bg-white rounded-lg shadow-xl border border-gray-200 w-96 h-96 mb-4 overflow-hidden">
+            <div class="bg-blue-600 text-white px-4 py-3 rounded-t-lg flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">AI Assistant</h3>
+                        <p class="text-xs text-blue-100">Online</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="chat-expand" class="text-blue-100 hover:text-white" title="Open in new tab">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                    </button>
+                    <button id="chat-close" class="text-blue-100 hover:text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <iframe id="chat-iframe" src="/chatbot" class="w-full h-full border-0" style="height: calc(100% - 60px);">
+            </iframe>
+        </div>
+    </div>
+
+    <script>
+        // Simple chat functionality
+        const chatToggle = document.getElementById('chat-toggle');
+        const chatWindow = document.getElementById('chat-window');
+        const chatClose = document.getElementById('chat-close');
+        const chatExpand = document.getElementById('chat-expand');
+        const chatIframe = document.getElementById('chat-iframe');
+
+        // Toggle chat window
+        chatToggle.addEventListener('click', () => {
+            chatWindow.classList.toggle('hidden');
+            // Reload iframe when opened to ensure fresh chat
+            if (!chatWindow.classList.contains('hidden')) {
+                chatIframe.src = chatIframe.src;
+            }
+        });
+
+        // Close chat window
+        chatClose.addEventListener('click', () => {
+            chatWindow.classList.add('hidden');
+        });
+
+        // Expand chat to new tab
+        chatExpand.addEventListener('click', () => {
+            window.open('/chatbot', '_blank');
+            chatWindow.classList.add('hidden');
+        });
+
+        // Close chat when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!chatWindow.contains(e.target) && !chatToggle.contains(e.target)) {
+                if (!chatWindow.classList.contains('hidden')) {
+                    // Optional: auto-close when clicking outside
+                    // chatWindow.classList.add('hidden');
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
